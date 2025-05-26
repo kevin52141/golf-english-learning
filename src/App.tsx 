@@ -1,0 +1,586 @@
+import { useState, useEffect } from 'react'
+import { VocabularyQuiz } from './components/VocabularyQuiz'
+import { toast, Toaster } from 'sonner'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  CheckCircle2,
+  Circle,
+  Flag,
+  Calendar,
+  BookOpen,
+  Target,
+  Trophy,
+  Users,
+  Volume2,
+  Printer,
+  Share2,
+  Star,
+  Brain
+} from 'lucide-react'
+
+interface LearningDay {
+  day: number
+  title: string
+  goal: string
+  vocabulary: string[]
+  activities: string[]
+  completed: boolean
+}
+
+const learningPlan: LearningDay[] = [
+  {
+    day: 1,
+    title: "高尔夫基础术语",
+    goal: "掌握高尔夫球场基本术语和装备名称",
+    vocabulary: [
+      "tee box (发球台)", "fairway (球道)", "rough (长草区)", "green (果岭)",
+      "bunker (沙坑)", "golf club (高尔夫球杆)", "driver (一号木杆)",
+      "iron (铁杆)", "putter (推杆)", "golf ball (高尔夫球)",
+      "par (标准杆)", "birdie (小鸟球)", "bogey (柏忌)", "eagle (老鹰球)"
+    ],
+    activities: [
+      "制作术语闪卡，正面英文，背面中文",
+      "观看一段高尔夫比赛视频，注意解说员使用的术语",
+      "大声朗读每个术语5次，确保发音正确"
+    ],
+    completed: false
+  },
+  {
+    day: 2,
+    title: "球场交流用语",
+    goal: "学会基本的球场礼仪和交流表达",
+    vocabulary: [
+      "fore! (前方注意！)", "good shot (好球)", "nice putt (推杆不错)",
+      "bad luck (运气不好)", "you're away (轮到你了)", "honor (荣誉开球权)",
+      "play through (让行)", "ready golf (准备好就打)", "quiet please (请安静)",
+      "watch the pin (注意旗杆)", "mark your ball (标记球位)", "replace your divot (修复草皮)"
+    ],
+    activities: [
+      "与朋友模拟球场对话练习",
+      "学习标准的球场礼仪用语",
+      "练习鼓励和赞美的表达方式"
+    ],
+    completed: false
+  },
+  {
+    day: 3,
+    title: "击球指令与动作词汇",
+    goal: "掌握描述击球动作和技术的专业词汇",
+    vocabulary: [
+      "swing (挥杆)", "stance (站姿)", "grip (握杆)", "backswing (后摆)",
+      "downswing (下挥)", "follow through (随挥)", "tempo (节奏)", "balance (平衡)",
+      "slice (右曲球)", "hook (左曲球)", "fade (小右曲)", "draw (小左曲)",
+      "chip shot (切球)", "pitch shot (劈球)", "flop shot (高抛球)"
+    ],
+    activities: [
+      "观看专业教学视频，学习动作描述",
+      "练习用英语描述自己的挥杆动作",
+      "学习常见的挥杆问题及其英文表达"
+    ],
+    completed: false
+  },
+  {
+    day: 4,
+    title: "球场导航与方位表达",
+    goal: "学会描述球场位置和方向的表达方式",
+    vocabulary: [
+      "left side (左侧)", "right side (右侧)", "straight ahead (正前方)",
+      "dogleg left/right (左/右狗腿洞)", "uphill (上坡)", "downhill (下坡)",
+      "pin high (与旗杆同一水平线)", "short of the pin (球在洞杯前)",
+      "over the green (球过了果岭)", "in the rough (在长草区)",
+      "water hazard (水障碍)", "out of bounds (界外)"
+    ],
+    activities: [
+      "使用球场地图练习方位描述",
+      "练习给同伴指示球的位置",
+      "学习阅读球场布局图的英文说明"
+    ],
+    completed: false
+  },
+  {
+    day: 5,
+    title: "比赛规则和礼仪用语",
+    goal: "了解高尔夫规则相关的英语表达",
+    vocabulary: [
+      "handicap (差点)", "stroke play (比杆赛)", "match play (比洞赛)",
+      "penalty stroke (罚杆)", "drop zone (抛球区)", "free drop (免费抛球)",
+      "lost ball (遗失球)", "provisional ball (临时球)", "unplayable lie (不可打球位)",
+      "gimme (让推)", "concede (认输)", "all square (平局)",
+      "dormie (领先洞数等于剩余洞数)"
+    ],
+    activities: [
+      "学习基本规则的英文说明",
+      "练习解释简单的规则情况",
+      "了解比赛中常用的礼仪表达"
+    ],
+    completed: false
+  },
+  {
+    day: 6,
+    title: "专业术语与技术讨论",
+    goal: "掌握更高级的技术词汇和专业讨论",
+    vocabulary: [
+      "loft (杆面倾角)", "lie angle (杆身倾角)", "shaft flex (杆身硬度)",
+      "compression (压缩)", "launch angle (发射角)", "spin rate (旋转速度)",
+      "carry distance (飞行距离)", "roll distance (滚动距离)",
+      "course rating (球场难度系数)", "slope rating (坡度系数)",
+      "green speed (果岭速度)", "pin position (旗杆位置)"
+    ],
+    activities: [
+      "阅读英文的装备介绍和技术文章",
+      "练习讨论球具选择和技术改进",
+      "学习分析球场条件的专业表达"
+    ],
+    completed: false
+  },
+  {
+    day: 7,
+    title: "综合应用与实战演练",
+    goal: "综合运用所学词汇进行实际交流",
+    vocabulary: [
+      "综合复习前6天所有词汇",
+      "增加情景对话中的连接词和过渡语",
+      "掌握完整的球场交流流程"
+    ],
+    activities: [
+      "进行完整的模拟高尔夫对话",
+      "练习介绍高尔夫给英语母语者",
+      "制定个人的高尔夫英语学习计划",
+      "完成词汇测试和口语评估"
+    ],
+    completed: false
+  }
+]
+
+const learningTips = [
+  "每天坚持学习15-30分钟，保持学习连续性",
+  "大声朗读词汇，注意正确的发音",
+  "结合实际打球经验来理解和记忆术语",
+  "观看英文解说的高尔夫比赛视频",
+  "找机会与英语母语的球友交流",
+  "使用手机应用记录新学的词汇",
+  "制作个人的高尔夫英语词汇本"
+]
+
+function App() {
+  const [completedDays, setCompletedDays] = useState<number[]>([])
+  const [selectedDay, setSelectedDay] = useState(1)
+  const [speakingWord, setSpeakingWord] = useState<string | null>(null)
+  const [showQuiz, setShowQuiz] = useState(false)
+
+  // 从本地存储加载进度
+  useEffect(() => {
+    const saved = localStorage.getItem('golf-english-progress')
+    if (saved) {
+      setCompletedDays(JSON.parse(saved))
+    }
+  }, [])
+
+  // 保存进度到本地存储
+  useEffect(() => {
+    localStorage.setItem('golf-english-progress', JSON.stringify(completedDays))
+  }, [completedDays])
+
+  const toggleDayCompletion = (day: number) => {
+    setCompletedDays(prev => {
+      const isCompleted = prev.includes(day)
+      if (isCompleted) {
+        toast.info(`第${day}天学习进度已取消标记`)
+        return prev.filter(d => d !== day)
+      }
+      toast.success(`🎉 恭喜完成第${day}天的学习！`, {
+        description: `你已经掌握了${learningPlan[day - 1].vocabulary.length}个新词汇！`
+      })
+      return [...prev, day]
+    })
+  }
+
+  const speak = (text: string) => {
+    if ('speechSynthesis' in window) {
+      // 提取英文部分（括号前的内容）
+      const englishText = text.split('(')[0].trim()
+      setSpeakingWord(englishText)
+
+      const utterance = new SpeechSynthesisUtterance(englishText)
+      utterance.lang = 'en-US'
+      utterance.rate = 0.8
+      utterance.onend = () => setSpeakingWord(null)
+
+      speechSynthesis.speak(utterance)
+      toast.info(`🔊 正在播放: ${englishText}`)
+    } else {
+      toast.error('抱歉，您的浏览器不支持语音播放功能')
+    }
+  }
+
+  const printPage = () => {
+    window.print()
+  }
+
+  const shareContent = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: '7天掌握高尔夫英语',
+          text: '一个完整的高尔夫英语学习计划，帮你快速掌握球场交流技巧！',
+          url: window.location.href,
+        })
+        toast.success('内容分享成功！')
+      } catch (err) {
+        console.log('分享失败:', err)
+        toast.error('分享失败，请稍后重试')
+      }
+    } else {
+      // 回退到复制链接
+      try {
+        await navigator.clipboard.writeText(window.location.href)
+        toast.success('🔗 链接已复制到剪贴板！', {
+          description: '现在你可以分享给朋友了'
+        })
+      } catch (err) {
+        toast.error('复制失败，请手动复制链接')
+      }
+    }
+  }
+
+  const progressPercentage = (completedDays.length / 7) * 100
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100">
+      {/* 顶部导航 */}
+      <nav className="bg-green-600 text-white p-4 shadow-lg">
+        <div className="container mx-auto flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
+              <Flag className="w-5 h-5 text-green-600" />
+            </div>
+            <h1 className="text-xl font-bold">高尔夫英语学习</h1>
+          </div>
+          <div className="flex space-x-2">
+            <Button variant="outline" size="sm" onClick={() => setShowQuiz(true)} className="text-green-600">
+              <Brain className="w-4 h-4 mr-1" />
+              词汇测试
+            </Button>
+            <Button variant="outline" size="sm" onClick={printPage} className="text-green-600">
+              <Printer className="w-4 h-4 mr-1" />
+              打印
+            </Button>
+            <Button variant="outline" size="sm" onClick={shareContent} className="text-green-600">
+              <Share2 className="w-4 h-4 mr-1" />
+              分享
+            </Button>
+          </div>
+        </div>
+      </nav>
+
+      <div className="container mx-auto px-4 py-8">
+        {/* 标题区域 */}
+        <div className="text-center mb-12">
+          <div className="relative inline-block">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full shadow-lg bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+              <Flag className="w-10 h-10 text-white" />
+            </div>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-green-800 mb-4">
+            7天掌握高尔夫英语
+          </h1>
+          <p className="text-xl text-green-600 max-w-2xl mx-auto">
+            从基础术语到场上流利交流的完整学习计划
+          </p>
+
+          {/* 进度条 */}
+          <div className="mt-8 max-w-md mx-auto">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-green-700">学习进度</span>
+              <span className="text-sm text-green-700">{completedDays.length}/7 天</span>
+            </div>
+            <Progress value={progressPercentage} className="h-3" />
+            <p className="text-xs text-green-600 mt-1">
+              已完成 {progressPercentage.toFixed(0)}% 的学习计划
+            </p>
+          </div>
+        </div>
+
+        {/* 简介部分 */}
+        <Card className="mb-8 border-green-200">
+          <CardHeader className="bg-green-50">
+            <CardTitle className="flex items-center text-green-800">
+              <Target className="w-5 h-5 mr-2" />
+              学习目标
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold text-green-700 mb-3">这个计划将帮助你：</h3>
+                <ul className="space-y-2 text-green-600">
+                  <li className="flex items-center">
+                    <CheckCircle2 className="w-4 h-4 mr-2 text-green-500" />
+                    掌握300+高尔夫专业术语
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle2 className="w-4 h-4 mr-2 text-green-500" />
+                    学会球场基本交流用语
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle2 className="w-4 h-4 mr-2 text-green-500" />
+                    理解高尔夫规则和礼仪表达
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle2 className="w-4 h-4 mr-2 text-green-500" />
+                    能够进行技术讨论和交流
+                  </li>
+                </ul>
+              </div>
+              <div className="relative bg-gradient-to-br from-green-100 to-green-200 rounded-lg p-8 h-48 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="flex justify-center space-x-4 mb-4">
+                    <Trophy className="w-12 h-12 text-green-600" />
+                    <Target className="w-12 h-12 text-blue-600" />
+                    <BookOpen className="w-12 h-12 text-purple-600" />
+                  </div>
+                  <p className="text-green-700 font-semibold">开始你的高尔夫英语学习之旅</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 每日学习计划 */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-green-800 mb-6 flex items-center">
+            <Calendar className="w-8 h-8 mr-3" />
+            7天学习计划
+          </h2>
+
+          <Tabs value={selectedDay.toString()} onValueChange={(value) => setSelectedDay(Number.parseInt(value))}>
+            <TabsList className="grid w-full grid-cols-7 mb-6">
+              {learningPlan.map((day) => (
+                <TabsTrigger
+                  key={day.day}
+                  value={day.day.toString()}
+                  className={`relative ${completedDays.includes(day.day) ? 'bg-green-100' : ''}`}
+                >
+                  第{day.day}天
+                  {completedDays.includes(day.day) && (
+                    <CheckCircle2 className="w-4 h-4 absolute -top-1 -right-1 text-green-500" />
+                  )}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            {learningPlan.map((day) => (
+              <TabsContent key={day.day} value={day.day.toString()}>
+                <Card className="border-green-200 enhanced-shadow animate-fade-in-up">
+                  <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-2xl text-green-800 flex items-center">
+                          <Flag className="w-6 h-6 mr-2" />
+                          第{day.day}天: {day.title}
+                        </CardTitle>
+                        <CardDescription className="text-green-600 mt-2">
+                          <strong>学习目标：</strong> {day.goal}
+                        </CardDescription>
+                      </div>
+                      <Button
+                        onClick={() => toggleDayCompletion(day.day)}
+                        variant={completedDays.includes(day.day) ? "default" : "outline"}
+                        className={`golf-button ${completedDays.includes(day.day) ? "bg-green-500 hover:bg-green-600" : "border-green-300"}`}
+                      >
+                        {completedDays.includes(day.day) ? (
+                          <CheckCircle2 className="w-4 h-4 mr-1" />
+                        ) : (
+                          <Circle className="w-4 h-4 mr-1" />
+                        )}
+                        {completedDays.includes(day.day) ? "已完成" : "标记完成"}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {/* 核心词汇 */}
+                      <div>
+                        <h4 className="font-semibold text-green-700 mb-3 flex items-center">
+                          <BookOpen className="w-4 h-4 mr-2" />
+                          核心词汇 ({day.vocabulary.length} 个)
+                        </h4>
+                        <div className="space-y-2 max-h-60 overflow-y-auto vocabulary-scroll">
+                          {day.vocabulary.map((word, index) => (
+                            <div
+                              key={`${day.day}-vocab-${index}-${word.slice(0, 10)}`}
+                              className="vocabulary-card flex items-center justify-between p-2 bg-green-50 rounded-lg border border-green-100"
+                            >
+                              <span className="text-green-700">{word}</span>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => speak(word)}
+                                className={`text-green-600 hover:text-green-700 ${speakingWord === word.split('(')[0].trim() ? 'speaking' : ''}`}
+                                disabled={speakingWord === word.split('(')[0].trim()}
+                              >
+                                <Volume2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 练习活动 */}
+                      <div>
+                        <h4 className="font-semibold text-green-700 mb-3 flex items-center">
+                          <Users className="w-4 h-4 mr-2" />
+                          建议练习活动
+                        </h4>
+                        <div className="space-y-3">
+                          {day.activities.map((activity, index) => (
+                            <div key={`${day.day}-activity-${index}-${activity.slice(0, 10)}`} className="flex items-start p-3 bg-blue-50 rounded-lg border border-blue-100">
+                              <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3 mt-0.5">
+                                {index + 1}
+                              </div>
+                              <span className="text-blue-700">{activity}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
+
+        {/* 学习建议 */}
+        <Card className="mb-8 border-blue-200">
+          <CardHeader className="bg-blue-50">
+            <CardTitle className="text-blue-800 flex items-center">
+              <Star className="w-5 h-5 mr-2" />
+              学习建议与技巧
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-blue-700 mb-3">有效学习方法</h4>
+                <ul className="space-y-2">
+                  {learningTips.map((tip, index) => (
+                    <li key={`tip-${index}-${tip.slice(0, 15)}`} className="flex items-start text-blue-600">
+                      <div className="flex-shrink-0 w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                        <span className="text-blue-600 text-xs font-bold">{index + 1}</span>
+                      </div>
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="space-y-4">
+                <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <h5 className="font-semibold text-yellow-800 mb-2">💡 记忆小贴士</h5>
+                  <p className="text-yellow-700 text-sm">
+                    将新学的英语术语与实际打球经验结合，在球场上主动使用这些词汇，这样能大大提高记忆效果。
+                  </p>
+                </div>
+                <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                  <h5 className="font-semibold text-purple-800 mb-2">🎯 实战应用</h5>
+                  <p className="text-purple-700 text-sm">
+                    找机会观看英文解说的高尔夫比赛，或者加入英语高尔夫社群，在真实环境中练习所学词汇。
+                  </p>
+                </div>
+                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                  <h5 className="font-semibold text-green-800 mb-2">🧠 测试你的学习成果</h5>
+                  <p className="text-green-700 text-sm mb-3">
+                    通过词汇测试检验学习效果，巩固记忆。
+                  </p>
+                  <Button
+                    onClick={() => setShowQuiz(true)}
+                    className="w-full bg-green-600 hover:bg-green-700 golf-button"
+                  >
+                    <Brain className="w-4 h-4 mr-2" />
+                    开始词汇测试
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 成就展示 */}
+        {completedDays.length > 0 && (
+          <Card className="mb-8 border-yellow-200">
+            <CardHeader className="bg-yellow-50">
+              <CardTitle className="text-yellow-800 flex items-center">
+                <Trophy className="w-5 h-5 mr-2" />
+                学习成就
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-4 bg-green-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">{completedDays.length}</div>
+                  <div className="text-sm text-green-600">完成天数</div>
+                </div>
+                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {completedDays.reduce((acc, day) => acc + learningPlan[day - 1].vocabulary.length, 0)}
+                  </div>
+                  <div className="text-sm text-blue-600">掌握词汇</div>
+                </div>
+                <div className="text-center p-4 bg-purple-50 rounded-lg">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {Math.round(progressPercentage)}%
+                  </div>
+                  <div className="text-sm text-purple-600">完成进度</div>
+                </div>
+                <div className="text-center p-4 bg-orange-50 rounded-lg">
+                  <div className="text-2xl font-bold text-orange-600">
+                    {completedDays.length >= 7 ? "🏆" : completedDays.length >= 5 ? "🥇" : completedDays.length >= 3 ? "🥈" : "🥉"}
+                  </div>
+                  <div className="text-sm text-orange-600">学习徽章</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* 页脚 */}
+        <footer className="text-center py-8 border-t border-green-200 mt-12">
+          <div className="text-green-600 mb-4">
+            <p className="text-lg font-semibold">祝你在高尔夫英语学习之路上取得成功！</p>
+            <p className="text-sm mt-2">
+              坚持每天学习，很快你就能在球场上自信地用英语交流了。
+            </p>
+          </div>
+          <div className="text-xs text-green-500">
+            © 2025 高尔夫英语学习计划 | 为高尔夫爱好者量身定制
+          </div>
+        </footer>
+      </div>
+
+      {/* 词汇测试弹窗 */}
+      <VocabularyQuiz
+        isOpen={showQuiz}
+        onClose={() => setShowQuiz(false)}
+      />
+
+      {/* Toast 通知 */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: '#f0fdf4',
+            border: '1px solid #bbf7d0',
+            color: '#15803d',
+          },
+        }}
+      />
+    </div>
+  )
+}
+
+export default App

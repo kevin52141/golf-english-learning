@@ -1,0 +1,270 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 142 84% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 142 84% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 142 84% 15%;
+    --primary: 142 76% 36%;
+    --primary-foreground: 355 7% 97%;
+    --secondary: 142 30% 86%;
+    --secondary-foreground: 142 9% 9%;
+    --muted: 142 30% 86%;
+    --muted-foreground: 142 5% 45%;
+    --accent: 142 30% 86%;
+    --accent-foreground: 142 9% 9%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 355 7% 97%;
+    --border: 142 30% 82%;
+    --input: 142 30% 82%;
+    --ring: 142 76% 36%;
+    --radius: 0.5rem;
+    --chart-1: 142 76% 36%;
+    --chart-2: 142 70% 45%;
+    --chart-3: 142 60% 54%;
+    --chart-4: 142 50% 63%;
+    --chart-5: 142 40% 72%;
+  }
+
+  .dark {
+    --background: 142 84% 2%;
+    --foreground: 142 30% 86%;
+    --card: 142 84% 2%;
+    --card-foreground: 142 30% 86%;
+    --popover: 142 84% 2%;
+    --popover-foreground: 142 30% 86%;
+    --primary: 142 76% 36%;
+    --primary-foreground: 355 7% 97%;
+    --secondary: 142 84% 4%;
+    --secondary-foreground: 142 30% 86%;
+    --muted: 142 84% 4%;
+    --muted-foreground: 142 5% 60%;
+    --accent: 142 84% 4%;
+    --accent-foreground: 142 30% 86%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 355 7% 97%;
+    --border: 142 84% 4%;
+    --input: 142 84% 4%;
+    --ring: 142 76% 36%;
+    --chart-1: 142 70% 45%;
+    --chart-2: 142 60% 54%;
+    --chart-3: 142 50% 63%;
+    --chart-4: 142 40% 72%;
+    --chart-5: 142 30% 81%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* 自定义动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-green {
+  0%, 100% {
+    background-color: rgb(34 197 94);
+  }
+  50% {
+    background-color: rgb(22 163 74);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-pulse-green {
+  animation: pulse-green 2s infinite;
+}
+
+/* 高尔夫主题渐变 */
+.golf-gradient {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+}
+
+.golf-card {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #bbf7d0;
+}
+
+/* 词汇卡片悬停效果 */
+.vocabulary-card {
+  transition: all 0.3s ease;
+}
+
+.vocabulary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+}
+
+/* 进度条自定义样式 */
+.progress-bar {
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+}
+
+/* 打印样式 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .bg-gradient-to-b {
+    background: white !important;
+  }
+
+  nav {
+    background: #16a34a !important;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+  }
+
+  .card {
+    border: 1px solid #d1d5db !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .vocabulary-card {
+    border: 1px solid #e5e7eb !important;
+    background: #f9fafb !important;
+  }
+
+  h1, h2, h3, h4 {
+    color: #1f2937 !important;
+  }
+
+  .text-green-800 {
+    color: #1f2937 !important;
+  }
+
+  .text-green-600, .text-green-700 {
+    color: #374151 !important;
+  }
+
+  /* 确保每天的内容在新页面开始 */
+  .tab-content {
+    page-break-before: always;
+  }
+
+  .tab-content:first-child {
+    page-break-before: auto;
+  }
+}
+
+/* 响应式设计增强 */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .text-4xl {
+    font-size: 2rem;
+  }
+
+  .text-5xl {
+    font-size: 2.5rem;
+  }
+
+  .grid-cols-7 {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.25rem;
+  }
+
+  .tab-trigger {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.25rem;
+  }
+}
+
+/* 语音播放按钮动画 */
+.speaking {
+  @apply animate-pulse-green;
+}
+
+/* 成就徽章动画 */
+.achievement-badge {
+  transition: transform 0.3s ease;
+}
+
+.achievement-badge:hover {
+  transform: scale(1.1);
+}
+
+/* 自定义滚动条 */
+.vocabulary-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.vocabulary-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.vocabulary-scroll::-webkit-scrollbar-thumb {
+  background: #22c55e;
+  border-radius: 3px;
+}
+
+.vocabulary-scroll::-webkit-scrollbar-thumb:hover {
+  background: #16a34a;
+}
+
+/* 卡片阴影增强 */
+.enhanced-shadow {
+  box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.1), 0 10px 10px -5px rgba(34, 197, 94, 0.04);
+}
+
+/* 按钮悬停效果 */
+.golf-button {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.golf-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.golf-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.golf-button:hover::before {
+  left: 100%;
+}
